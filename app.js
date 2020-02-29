@@ -1,15 +1,14 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
-const util = require('util');
 
 const manager = require('./lib/manager');
 const engineer = require('./lib/engineer');
 const intern = require('./lib/intern');
 
-const managerHTML = require('./templates/genManagerHTML');
-const engineerHTML = require('./templates/genEngineerHTML');
-const internHTML = require('./templates/genInternHTML');
-const html = require('./templates/genMainHTML');
+const managerHTML = require('./templates/managerHTML');
+const engineerHTML = require('./templates/engineerHTML');
+const internHTML = require('./templates/internHTML');
+const mainHTML = require('./templates/mainHTML');
 
 const allQuestions = require('./lib/allQuestions.js');
 
@@ -18,7 +17,6 @@ function askQuestions(Qs) {
 }
 
 async function getTeam() {
-
     try {
         let team = [];
         let moreEntries = true;
@@ -44,16 +42,39 @@ async function getTeam() {
     }
 }
 
-function genTeamProfile() {
+function genTeamProfile(team) {
+    let teamProfiles = "";
 
+    team.forEach(function(member, index) {
 
+        switch(member.role) {
 
+            case "Manager":
+                const profile = new Manager(member.name, id, `${member.name.replace(/\s/g,"")}@devteam.com`, member.officeNumber);
+                teamProfiles += managerHTML(profile);
+            break;
+
+            case "Engineer":
+                const profile = new Engineer(member.name, id, `${member.name.replace(/\s/g,"")}@devteam.com`, member.github);
+                teamProfiles += engineerHTML(profile);
+            break;
+
+            case "Intern":
+                const profile = new Intern(member.name, id, `${member.name.replace(/\s/g,"")}@devteam.com`, member.school);
+                teamProfiles += internHTML(profile);
+            break;
+        }
+    })
+
+    fs.writeFile("./output/team.html", mainHTML(teamProfiles), function(err) {
+        if(err) return console.log(err);
+        console.log("Created 'team.html' successfully!");
 }
 
 getTeam()
     .then(function(team) {
         genTeamProfile(team);
-    });
+});
 
 
 // async function xxx() {
