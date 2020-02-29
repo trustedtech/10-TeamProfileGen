@@ -1,9 +1,9 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 
-const manager = require('./lib/manager');
-const engineer = require('./lib/engineer');
-const intern = require('./lib/intern');
+const Manager = require('./lib/manager');
+const Engineer = require('./lib/engineer');
+const Intern = require('./lib/intern');
 
 const managerHTML = require('./templates/managerHTML');
 const engineerHTML = require('./templates/engineerHTML');
@@ -47,28 +47,35 @@ function genTeamProfile(team) {
 
     team.forEach(function(member, index) {
 
-        switch(member.role) {
+        try {
 
-            case "Manager":
-                const profile = new Manager(member.name, id, `${member.name.replace(/\s/g,"")}@devteam.com`, member.officeNumber);
-                teamProfiles += managerHTML(profile);
-            break;
+            switch(member.role) {
 
-            case "Engineer":
-                const profile = new Engineer(member.name, id, `${member.name.replace(/\s/g,"")}@devteam.com`, member.github);
-                teamProfiles += engineerHTML(profile);
-            break;
+                case "Manager":
+                    const manager = new Manager(member.name, member.id, `${member.name.replace(/\s/g,"")}@devteam.com`, member.officeNumber);
+                    teamProfiles += managerHTML(manager);
+                break;
 
-            case "Intern":
-                const profile = new Intern(member.name, id, `${member.name.replace(/\s/g,"")}@devteam.com`, member.school);
-                teamProfiles += internHTML(profile);
-            break;
+                case "Engineer":
+                    const engineer = new Engineer(member.name, member.id, `${member.name.replace(/\s/g,"")}@devteam.com`, member.github);
+                    teamProfiles += engineerHTML(engineer);
+                break;
+
+                case "Intern":
+                    const intern = new Intern(member.name, member.id, `${member.name.replace(/\s/g,"")}@devteam.com`, member.school);
+                    teamProfiles += internHTML(intern);
+                break;
+            }
         }
+        catch(err) 
+        { console.log(err); }
+    
     })
 
     fs.writeFile("./output/team.html", mainHTML(teamProfiles), function(err) {
         if(err) return console.log(err);
         console.log("Created 'team.html' successfully!");
+    })
 }
 
 getTeam()
